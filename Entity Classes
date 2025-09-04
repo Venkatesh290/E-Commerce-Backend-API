@@ -1,0 +1,55 @@
+CartController.java
+package com.ecommerce.controller;
+
+import com.ecommerce.dto.CartItemDto;
+import com.ecommerce.service.CartService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/cart")
+@RequiredArgsConstructor
+@Tag(name = "Cart", description = "Shopping Cart APIs")
+public class CartController {
+
+    private final CartService cartService;
+
+    @PostMapping("/add")
+    @Operation(summary = "Add product to cart")
+    public ResponseEntity<String> addToCart(
+            @RequestParam Long productId,
+            @RequestParam Integer quantity,
+            Authentication authentication) {
+        cartService.addToCart(authentication.getName(), productId, quantity);
+        return ResponseEntity.ok("Product added to cart");
+    }
+
+    @GetMapping
+    @Operation(summary = "Get cart items")
+    public ResponseEntity<List<CartItemDto>> getCartItems(Authentication authentication) {
+        return ResponseEntity.ok(cartService.getCartItems(authentication.getName()));
+    }
+
+    @PutMapping("/update")
+    @Operation(summary = "Update cart item quantity")
+    public ResponseEntity<String> updateCartItem(
+            @RequestParam Long productId,
+            @RequestParam Integer quantity,
+            Authentication authentication) {
+        cartService.updateCartItem(authentication.getName(), productId, quantity);
+        return ResponseEntity.ok("Cart updated successfully");
+    }
+
+    @DeleteMapping("/remove/{productId}")
+    @Operation(summary = "Remove product from cart")
+    public ResponseEntity<String> removeFromCart(
+            @PathVariable Long productId,
+            Authentication authentication) {
+        cartService.removeFromCart(authentication.getName(), productId);
+        return ResponseEntity.ok("Product removed from cart");
